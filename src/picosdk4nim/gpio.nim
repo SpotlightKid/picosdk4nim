@@ -1,4 +1,5 @@
 import hidecmakelinkerpkg/libconf
+import ../picosdk4nim
 
 initLibParams(linkLibraries = ["pico_stdlib"]).config()
 
@@ -28,14 +29,34 @@ const
 
 {.push header: "hardware/gpio.h".}
 
-type
-  GpioFunction* {.importc: "gpio_function_t".} = enum
-    ## GPIO function definitions for use with function select.
-    ## Each GPIO can have one function selected at a time. Likewise,
-    ## each peripheral input (e.g. UART0 RX) should only be selected on one
-    ## GPIO at a time. If the same peripheral input is connected to multiple
-    ## GPIOs, the peripheral sees the logical OR of these GPIO inputs.
-    XIP, SPI, UART, I2C, PWM, SIO, PIO0, PIO1, GPCK, USB, NULL
+
+when PicoPlatform == "rp2040":
+  type
+    GpioFunction* {.importc: "gpio_function_t".} = enum
+      ## GPIO function definitions for use with function select.
+      ## Each GPIO can have one function selected at a time. Likewise,
+      ## each peripheral input (e.g. UART0 RX) should only be selected on one
+      ## GPIO at a time. If the same peripheral input is connected to multiple
+      ## GPIOs, the peripheral sees the logical OR of these GPIO inputs.
+      XIP, SPI, UART, I2C, PWM, SIO, PIO0, PIO1, GPCK, USB, NULL
+else:
+  type
+    GpioFunction* {.importc: "gpio_function_t".} = enum
+      HSTX = 0,
+      SPI = 1,
+      UART = 2,
+      I2C = 3,
+      PWM = 4,
+      SIO = 5,
+      PIO0 = 6,
+      PIO1 = 7,
+      GPCK = 8,
+      XIP_CS1 = 9,
+      #CORESIGHT_TRACE = 9,
+      USB = 10,
+      UART_AUX = 11,
+      NULL = 0X1F
+
 
 proc setFunction*(gpio: Gpio, fun: GpioFunction){.importc: "gpio_set_function".}
   ## Select GPIO function.
@@ -113,7 +134,6 @@ proc get*(gpio: Gpio): Value {.importc: "gpio_get".}
   ##
   ## **Returns:** Current state of the Gpio. Low (0.Value) or High (1.Value)
 
-
 proc getAll*: uint32 {.importc: "gpio_get_all".}
   ## Get raw value of all Gpios.
   ##
@@ -176,6 +196,7 @@ proc addRawIrqHandlerMasked*(gpioMask: uint32, handler: IrqCallback) {.importc: 
 
 {.pop.}
 
+
 proc put*(gpio: Gpio, value: bool) =
   gpio.put(
     if value:
@@ -183,11 +204,13 @@ proc put*(gpio: Gpio, value: bool) =
     else:
       Low)
 
+
 template setupGpio*(name: untyped, pin: Gpio, dir: bool) =
   # Makes a `const 'name' = pin; init(name); name.setDir(dir)
   const name = pin
   init(name)
   setDir(name, dir)
+
 
 proc init*(_: typedesc[Gpio], pin: range[0 .. 35], dir = Out): Gpio =
   ## perform the typical assignment, init(), and setDir() steps all in one proc.
@@ -199,4 +222,98 @@ proc init*(_: typedesc[Gpio], pin: range[0 .. 35], dir = Out): Gpio =
   result = pin.Gpio
   result.init()
   result.setDir(dir)
+
+
+#/*! \brief Get raw value of all GPIOs
+# *  \ingroup hardware_gpio
+# *
+# * \return Bitmask of raw GPIO values
+# */
+proc gpioGetAll*(): uint32 {.importC: "gpio_get_all".}
+
+
+#/*! \brief Get raw value of all GPIOs
+# *  \ingroup hardware_gpio
+# *
+# * \return Bitmask of raw GPIO values
+# */
+proc gpioGetAll64*(): uint64 {.importC: "gpio_get_all64".}
+
+
+#/*! \brief Drive high every GPIO appearing in mask
+# *  \ingroup hardware_gpio
+# *
+# * \param mask Bitmask of GPIO values to set
+# */
+proc gpioSetMask*(mask: uint32) {.importC: "gpio_set_mask".}
+
+
+#/*! \brief Drive high every GPIO appearing in mask
+# *  \ingroup hardware_gpio
+# *
+# * \param mask Bitmask of GPIO values to set
+# */
+proc gpioSetMask64*(mask: uint64) {.importC: "gpio_set_mask64".}
+
+
+#/*! \brief Drive high every GPIO appearing in mask
+# *  \ingroup hardware_gpio
+# *
+# * \param n the base GPIO index of the mask to update. n == 0 means 0->31, n == 1 mean 32->63 etc.
+# * \param mask Bitmask of 32 GPIO values to set
+# */
+proc gpioSetMaskN*(n: uint32, mask: uint32) {.importC: "gpio_set_mask_n".}
+
+
+#/*! \brief Drive low every GPIO appearing in mask
+# *  \ingroup hardware_gpio
+# *
+# * \param mask Bitmask of GPIO values to clear
+# */
+proc gpioClrMask*(mask: uint32) {.importC: "gpio_clr_mask".}
+
+
+#/*! \brief Drive low every GPIO appearing in mask
+#*  \ingroup hardware_gpio
+#*
+#* \param mask Bitmask of GPIO values to clear
+#*/
+proc gpioClrMask64*(mask: uint64) {.importC: "gpio_clr_mask64".}
+
+
+#/*! \brief Drive low every GPIO appearing in mask
+# *  \ingroup hardware_gpio
+# *
+# * \param n the base GPIO index of the mask to update. n == 0 means 0->31, n == 1 mean 32->63 etc.
+# * \param mask Bitmask of 32 GPIO values to clear
+# */
+proc gpioClrMaskN*(n: uint32, mask: uint32) {.importC: "gpio_clr_mask_n".}
+
+
+#/*! \brief Drive GPIOs high/low depending on parameters
+# *  \ingroup hardware_gpio
+# *
+# * \param mask Bitmask of GPIO values to change
+# * \param value Value to set
+# *
+# * For each 1 bit in \p mask, drive that pin to the value given by
+# * corresponding bit in \p value, leaving other pins unchanged.
+# * Since this uses the TOGL alias, it is concurrency-safe with e.g. an IRQ
+# * bashing different pins from the same core.
+ #*/
+proc gpioPutMasked*(mask: uint32, value: uint32) {.importC: "gpio_put_masked".}
+
+
+#/*! \brief Drive GPIOs high/low depending on parameters
+# *  \ingroup hardware_gpio
+# *
+# * \param mask Bitmask of GPIO values to change
+# * \param value Value to set
+# *
+# * For each 1 bit in \p mask, drive that pin to the value given by
+# * corresponding bit in \p value, leaving other pins unchanged.
+# * Since this uses the TOGL alias, it is concurrency-safe with e.g. an IRQ
+# * bashing different pins from the same core.
+# */
+proc gpioPutMasked64*(mask: uint64, value: uint64) {.importC: "gpio_put_masked64".}
 

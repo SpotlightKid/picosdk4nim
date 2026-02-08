@@ -44,6 +44,7 @@ type
 proc setEnabled*(num: Irq; enabled: bool) {.importC: "irq_set_enabled".}
 proc isEnabled*(num: Irq): bool {.importC: "irq_is_enabled".}
 proc setExclusiveHandler*(num: Irq; handler: IrqHandler) {.importC: "irq_set_exclusive_handler".}
+proc getExclusiveHandler*(num: Irq): IrqHandler {.importc: "irq_get_exclusive_handler".}
 proc clear*(num: Irq) {.importC: "irq_clear".}
 
 {.pop.}

@@ -49,7 +49,7 @@ when defined(PicotoolDir):
     ## Set path to the directory containing picotool so that Pico SDK
     ## can call it.
 
-const PicoBoard {.strdefine.}: string = ""
+const PicoBoard* {.strdefine.}: string = ""
   ## Board name being built for.
   ##
   ## When you add, remove or change this parameter, delete Nim cache directory,
@@ -66,7 +66,7 @@ const PicoBoard {.strdefine.}: string = ""
   ## If you use other boards supported by Pico SDK, use the board name in the header file name in:
   ## https://github.com/raspberrypi/pico-sdk/tree/master/src/boards/include/boards
 
-const PicoPlatform {.strdefine.}: string = ""
+const PicoPlatform* {.strdefine.}: string = ""
   ## Platform to build for.
   ##
   ## When you add, remove or change this parameter, delete Nim cache directory,
