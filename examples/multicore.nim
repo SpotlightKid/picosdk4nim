@@ -1,5 +1,5 @@
 import picosdk4nim
-import picosdk4nim/[stdio, multicore]
+import picosdk4nim/[stdio, multicore, time]
 import hidecmakelinkerpkg/libconf
 
 writeHideCMakeToFile()
@@ -8,11 +8,11 @@ stdioInitAll()
 
 proc coreOneActv() {.cdecl.} = #this function works on core1 (you must use pragma {.cdecl.})
   var value: uint32 = multicoreFifoPopBlocking() #read the value in FIFO(core0-->core1) and save in "value".
-  print("Core1 Active" & '\n')
+  echo("Core1 Active" & '\n')
   for addx in 1..10:
     value.inc() #core1 increase "value".
-    print("@On Core 1 --> " & $value & '\n')
-    sleepMs(600)
+    echo("@On Core 1 --> " & $value & '\n')
+    sleep(600)
   multicoreFifoPushBlocking(value) # push the value of "value" on the FIFO (core1-->core0).
   while true: tightLoopContents()
 
@@ -26,10 +26,10 @@ while true:
     multicoreFifoPushBlocking(counter) #write on the FIFO the value in "counter".
     counter.inc() #core0 increase "counter".
   else:
-    print("@On Core 0 --> " & $counter & '\n') #print  the variable "counter" increased by core0.
+    echo("@On Core 0 --> " & $counter & '\n') #print  the variable "counter" increased by core0.
     counter.inc() #core0 increase "counter".
-    sleepMs(1200)
+    sleep(1200)
 
   if multicoreFifoRvalid() == true: #check the FIFO (core1-->core0) if it has valid values (uint32).
     step = multicoreFifoPopBlocking()
-    print("Next Activation Core 1: " & $(step + 10) & '\n')
+    echo("Next Activation Core 1: " & $(step + 10) & '\n')
