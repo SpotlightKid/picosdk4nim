@@ -33,37 +33,39 @@ proc print_buf(buf: ptr uint8, length: cuint) =
            msg = ""
 
 var
-    random_data = newSeq[uint8](FlashPageSize)
+    data = newSeq[uint8](FlashPageSize)
     
 
 for i in 0 ..< FlashPageSize:
-    random_data[i] =i.uint8;
+    data[i] =i.uint8;
 
 
 echo "Generated data:"
-print_buf(random_data[0].addr, FlashPageSize)
+print_buf(data[0].addr, FlashPageSize)
 
 
 echo "Erase Flash"
 flashRangeErase(FLASH_TARGET_OFFSET, FlashPageSize)
 
 echo "Write Flash"
-flashRangeProgram(FLASH_TARGET_OFFSET, random_data[0].addr, FlashPageSize)
+flashRangeProgram(FLASH_TARGET_OFFSET, data[0].addr, FlashPageSize)
 
 
 var
     mismatch = false
     msg = ""
 
-
 for i in 0 ..< FLASH_PAGE_SIZE:
-    msg &= cast[ptr uint8](cast[uint](XipBase) + cast[uint](i) + FLASH_TARGET_OFFSET)[].int.toHex(2) & " "
+    var
+        value = cast[ptr uint8](cast[uint](XipBase) + cast[uint](i) + FLASH_TARGET_OFFSET)[]
+
+    msg &= value.int.toHex(2) & " "
     if (i+1) mod 16 < 1:
        echo msg
        msg = ""
 
-#    if (random_data[i] != flash_target_contents[i]):
-#        mismatch = true
+    if (data[i] != value):
+        mismatch = true
 
 if mismatch:
     echo "Programming failed!\n"
