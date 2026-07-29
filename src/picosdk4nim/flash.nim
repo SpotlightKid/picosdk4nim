@@ -121,7 +121,7 @@ proc flashSafeExecuteCoreDeinit*(): bool {.importc: "flash_safe_execute_core_dei
   ##
   ## \return true on success
 
-proc flashSafeExecute*(`func`: proc (param: pointer); param: pointer; enterExitTimeoutMs: uint32): cint {.importc: "flash_safe_execute".}
+proc flashSafeExecute*(`func`: proc (param: pointer) {.cdecl.}; param: pointer; enterExitTimeoutMs: uint32): cint {.importc: "flash_safe_execute".}
   ## Execute a function with IRQs disabled and with the other core also not executing/reading flash
   ##
   ## \param func the function to call
