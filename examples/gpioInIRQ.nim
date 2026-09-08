@@ -9,17 +9,21 @@ writeHideCMakeToFile()
 
 var turnOn = false
 
-proc gpioIrqHandler(gpio: Gpio, evt: set[IrqLevel]) {.cDecl.} =
+proc gpioIrqHandler(gpio: Gpio, evt: uint32) {.cDecl.} =
   turnOn = true
+
+
+converter irqLevelSetToUInt32(s: set[IrqLevel]): uint32 =
+  cast[uint32](s)
+
 
 stdioInitAll()
 
 const inputGpio = 2.Gpio
 inputGpio.setFunction(SIO)
-inputGpio.setDir(false)
-inputGpio.pullDown()
-const IrqLevelSet = {IrqLevel.fall}
-inputGpio.enableIrqWithCallback(IrqLevelSet, true, gpioIrqHandler)
+inputGpio.setDir(In)
+inputGpio.pullUp()
+inputGpio.enableIrqWithCallback({IrqLevel.fall}, true, gpioIrqHandler)
 
 var
   count = 0

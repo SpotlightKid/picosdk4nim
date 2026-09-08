@@ -3,8 +3,8 @@ import hidecmakelinkerpkg/libconf
 initLibParams(linkLibraries = ["pico_stdlib"]).config()
 
 type
-  Gpio* = distinct range[0.uint32 .. 35.uint32]
-    ## Gpio pins available to the RP2040. Not all pins may be available on some 
+  Gpio* = distinct range[0.cuint .. 35.cuint]
+    ## Gpio pins available to the RP2040. Not all pins may be available on some
     ## microcontroller boards.
   Value* = distinct uint32
     ## Gpio function value. See datasheet.
@@ -138,9 +138,9 @@ proc setDir*(gpio: Gpio, isOut: bool) {.importC: "gpio_set_dir".}
   ## **In**, **Out**, **true**, **false**   true or Output for output; In or false for input
 
 type
-  IrqLevel* {.pure, importc: "enum gpio_irq_level".} = enum
-    ## GPIO Interrupt level definitions. 
-    ## 
+  IrqLevel* {.pure, size: sizeof(cint), importc: "enum gpio_irq_level".} = enum
+    ## GPIO Interrupt level definitions.
+    ##
     ## An interrupt can be generated for every GPIO pin in 4 scenarios:
     ## 
     ## ===========  ====== 
@@ -156,12 +156,12 @@ type
     ## are stored in the INTR register and can be cleared by writing to the 
     ## INTR register. 
     low, high, fall, rise
-    
-  IrqCallback* {.importC: "gpio_irq_callback_t".} = proc(gpio: Gpio, evt: set[IrqLevel]){.cDecl.}
 
-proc enableIrq*(gpio: Gpio, events: set[IrqLevel], enabled: bool){.importC: "gpio_set_irq_enabled".}
-  ## Enable or disable interrupts for specified GPIO. 
-  ## 
+  IrqCallback* {.importc: "gpio_irq_callback_t".} = proc(gpio: Gpio, evt: uint32) {.cDecl.}
+
+proc enableIrq*(gpio: Gpio, events: uint32, enabled: bool){.importc: "gpio_set_irq_enabled".}
+  ## Enable or disable interrupts for specified GPIO.
+  ##
   ## **Parameters:**
   ## 
   ## ==============  ====== 
@@ -169,9 +169,10 @@ proc enableIrq*(gpio: Gpio, events: set[IrqLevel], enabled: bool){.importC: "gpi
   ## **event**       Which events will cause an interrupt 
   ## **enabled**     Enable or disable flag for turning on and off the interupt
 
+proc enableIrqWithCallback*(gpio: Gpio, events: uint32, enabled: bool, event: IrqCallback){.
+    importc: "gpio_set_irq_enabled_with_callback".}
 
-proc enableIrqWithCallback*(gpio: Gpio, events: set[IrqLevel], enabled: bool, event: IrqCallback){.
-    importC: "gpio_set_irq_enabled_with_callback".}
+proc addRawIrqHandlerMasked*(gpioMask: uint32, handler: IrqCallback) {.importc: "gpio_add_raw_irq_handler_masked".}
 
 {.pop.}
 
