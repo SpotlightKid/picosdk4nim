@@ -17,6 +17,12 @@ switch("threads", "off")
 #switch("exceptions", "setjmp")
 #switch("define", "noCppExceptions")
 
+if not defined(PicoSDKPath) and existsEnv("PICO_SDK_PATH"):
+    switch("define", "PicoSDKPath=" & getEnv("PICO_SDK_PATH"))
+
+if not defined(PicotoolDir) and existsEnv("PICOTOOL_DIR"):
+    switch("define", "PicotoolDir=" & getEnv("PICOTOOL_DIR"))
+
 switch("gcc.linkerexe", "hidecmakelinker")
 switch("gcc.cpp.linkerexe", "hidecmakelinker")
 switch("gcc.exe", "void")
@@ -25,3 +31,4 @@ nimcacheDir().mkDir()
 
 switch("define", "PicoAddExtraOutput")
 # switch("define", "PicoBinaryType=no_flash")
+
