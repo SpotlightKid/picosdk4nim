@@ -29,6 +29,6 @@ switch("gcc.exe", "void")
 switch("gcc.cpp.exe", "void")
 nimcacheDir().mkDir()
 
-switch("define", "PicoAddExtraOutput")
-# switch("define", "PicoBinaryType=no_flash")
+#switch("define", "PicoAddExtraOutput")
+#switch("define", "PicoBinaryType=no_flash")
 
