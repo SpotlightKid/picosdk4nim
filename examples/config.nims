@@ -1,4 +1,4 @@
-switch("path", "$projectDir/../src")
+switch("path", "$config/../src")
 switch("define", "release")
 switch("mm", "arc") # use "arc", "orc" or "none"
 switch("define", "checkAbi")
