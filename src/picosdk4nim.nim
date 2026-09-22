@@ -3,6 +3,7 @@ import pathX
 import hidecmakelinkerpkg/libconf
 
 const PicoSDKPath {.strdefine.} = ""
+const PicoExtrasPath {.strdefine.} = ""
 
 when PicoSDKPath == "":
   {.error: "Please run 'git clone https://github.com/raspberrypi/pico-sdk.git --branch master --depth 1 --recurse-submodules --shallow-submodules' and specify the path to Raspberry Pi Pico SDK with `-d:PicoSDKPath=/path/to/pico-sdk`".}
@@ -80,8 +81,10 @@ const PicoPlatform {.strdefine.}: string = ""
   ## - "rp2350-riscv": RP2350 on RISC-V processors
 
 const cmakeStmts = block:
-  var res = @[initCMakeInclude($(PicoSDKPath.PathX[:fdDire, arAbso, BuildOS, true].joinFile"pico_sdk_init.cmake"), "includePicoSDK", "std.topStmts"),
-              initCMakeCmd("pico_sdk_init()", "initPicoSDK", "std.project")]
+  var res = @[initCMakeInclude($(PicoSDKPath.PathX[:fdDire, arAbso, BuildOS, true].joinFile"pico_sdk_init.cmake"), "includePicoSDK", "std.topStmts")]
+  when PicoExtrasPath != "":
+    res.add initCMakeInclude($(PicoExtrasPath.PathX[:fdDire, arAbso, BuildOS, true].joinDire("external").joinFile("pico_extras_import.cmake")), "includePicoExtras", "includePicoSDK")
+  res.add initCMakeCmd("pico_sdk_init()", "initPicoSDK", "std.project")
   when defined(PicoAddExtraOutput):
     res.add initCMakeCmdWithTarget("pico_add_extra_outputs(#target)")
   when PicoBinaryType != "":
@@ -119,3 +122,4 @@ const cmakeStmts = block:
 initLibParams(cmakeStmts = cmakeStmts).config()
 
 {.used.}
+
