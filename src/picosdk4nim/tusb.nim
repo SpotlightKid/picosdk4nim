@@ -463,6 +463,7 @@ type CdcLineCoding* {.importc: "cdc_line_coding_t", packed, completeStruct.} = o
 static:
   assert CdcLineCoding.sizeof == 7
 
+
 # CDC API
 
 {.push header: "tusb.h".}
@@ -595,6 +596,75 @@ proc writeLine*(itf: UsbSerialInterface, s: string) {.inline.} =
 proc flush*(itf: UsbSerialInterface) {.inline.} =
   ## Force sending any data remaining in transmit FIFO
   discard cdcWriteFlush(itf.uint8)
+
+
+# MIDI
+
+# C API
+
+{.push header: "tusb.h".}
+proc midiMounted*(itf: uint8): bool {.importc: "tud_midi_n_mounted".}
+
+proc midiAvailable*(itf: uint8, cableNum: uint8): uint32 {.importc: "tud_midi_n_available".}
+
+proc midiStreamRead*(itf: uint8, cableNum: uint8, buffer: ptr uint8, bufsize: uint32): uint32  {.importc: "tud_midi_n_stream_read", deprecated: "legacy interface".}
+
+proc midiDemuxStreamRead*(itf: uint8, cableNum: uint8, buffer: ptr uint8, bufsize: uint32): uint32 {.importc: "tud_midi_n_demux_stream_read".}
+
+proc midiStreamWrite*(itf: uint8, cableNum: uint8, buffer: ptr uint8, bufsize: uint32): uint32 {.importc: "tud_midi_n_stream_write", discardable, deprecated: "legacy interface".}
+
+proc midiPacketRead*(itf: uint8, packet: ptr uint8): bool {.importc: "tud_midi_n_packet_read", discardable.}
+
+proc midiPacketReadN*(itf: uint8, packets: ptr uint8, maxPackets: uint32): uint32 {.importc: "tud_midi_n_packet_read_n".}
+
+proc midiPacketWrite*(itf: uint8, packet: ptr uint8): bool {.importc: "tud_midi_n_packet_write", discardable.}
+
+proc midiPacketWriteN*(itf: uint8, packets: ptr uint8, numPackets: uint32): uint32 {.importc: "tud_midi_n_packet_write_n".}
+
+{.pop.}
+
+
+type
+  MidiInterface* = distinct range[0'u8 .. 127'u8]
+  ## Used to represent the CDC interface number, as configured by `CFG_TUD_MIDI`.
+  ## Eg. if `CFG_TUD_MIDI` is `1`, then only `0.MidiInterface` would be valid.
+  ## If `CFG_TUD_MIDI` is `2`, then we could use `0.MidiInterface` and
+  ## `1.MidiInterface`.
+  MidiCable* = distinct range[0'u8 .. 16'u8]
+  ## Vitual MIDI cable number.
+  ## There can be 16 cables per interface.
+
+
+# Nim API for USB MIDI
+
+proc available*(itf: MidiInterface): uint32 {.inline.} =
+  ## Get the number of bytes available for reading
+  midiAvailable(itf.uint8, 0)
+
+proc available*(itf: MidiInterface, cableNum: MidiCable): uint32 {.inline.} =
+  ## Get the number of bytes available for reading
+  midiAvailable(itf.uint8, cableNum.uint8)
+
+proc readPacket*(itf: MidiInterface): seq[uint8] =
+  result = newSeq[uint8](4)
+  if not midiPacketRead(itf.uint8, result[0].addr):
+    result.setlen(0)
+
+proc readPacket*(itf: MidiInterface, packet: openArray[uint8]): bool =
+  doAssert packet.len >= 4
+  midiPacketRead(itf.uint8, packet[0].addr)
+
+proc write*(itf: MidiInterface, status: uint8, data1: uint8 = 0, data2: uint8 = 0, cable = 0.MidiCable): bool {.inline, discardable.} =
+  let
+    cin: uint8 = case status
+      of 0xF1, 0xF3: 2
+      of 0xF2: 3
+      of 0xF4, 0xF5, 0xF6, 0xF7: 5
+      of 0xF8..0xFF: 0xF
+      else: status shr 4.uint8
+    packet = [(cable.uint8 shl 4.uint8) or cin, status, data1, data2]
+  midiPacketWrite(itf.uint8, packet[0].addr)
+
 
 # Device Descriptor configuration
 
