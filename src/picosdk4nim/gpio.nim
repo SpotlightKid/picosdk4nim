@@ -1,7 +1,8 @@
-import hidecmakelinkerpkg/libconf
 import ../picosdk4nim
+import hidecmakelinkerpkg/libconf
 
-initLibParams(linkLibraries = ["pico_stdlib"]).config()
+
+config(initLibParams(linkLibraries = ["pico_stdlib"]))
 
 type
   Gpio* = distinct range[0.cuint .. 35.cuint]

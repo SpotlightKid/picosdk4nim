@@ -1,6 +1,7 @@
 import hidecmakelinkerpkg/libconf
 
-initLibParams(linkLibraries = ["hardware_dma"]).config()
+
+config(initLibParams(linkLibraries = ["hardware_dma"]))
 
 {.push header: "hardware/dma.h".}
 
@@ -72,3 +73,4 @@ proc setSniffEnable*(c: DmaChannelConfig; sniffEnable: bool) {.importC: "channel
 proc getDefaultConfig*(channel: DmaChannel): DmaChannelConfig {.importC: "dma_channel_get_default_config".}
 proc getChannelConfig*(channel: DmaChannel): DmaChannelConfig {.importC: "dma_get_channel_config".}
 proc getCtrlValue*(config: DmaChannelConfig): uint32 {.importC: "channel_config_get_ctrl_value".}
+

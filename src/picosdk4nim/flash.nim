@@ -25,7 +25,9 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import hidecmakelinkerpkg/libconf
-initLibParams(linkLibraries = ["pico_flash"]).config()
+
+
+config(initLibParams(linkLibraries = ["pico_flash"]))
 
 {.push header: "hardware/flash.h".}
 
@@ -144,3 +146,4 @@ proc getFlashSafetyHelper*(): ptr FlashSafetyHelper {.importc: "get_flash_safety
   ## @return the \ref flash_safety_helper_t
 
 {.pop.}
+

@@ -24,11 +24,13 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import hidecmakelinkerpkg/libconf
-initLibParams(linkLibraries = ["hardware_spi"]).config()
-
 import base
 import gpio
+
+import hidecmakelinkerpkg/libconf
+
+
+config(initLibParams(linkLibraries = ["hardware_spi"]))
 
 {.push header: "hardware/spi.h".}
 
@@ -255,3 +257,4 @@ proc getDreq*(spi: ptr SpiInst; isTx: bool): cuint {.importc: "spi_get_dreq".}
 proc writeBlocking*(spi: ptr SpiInst; src: varargs[uint8]): cint =
   assert(src.len > 0)
   return spi.writeBlocking(src[0].unsafeAddr, src.len.csize_t)
+

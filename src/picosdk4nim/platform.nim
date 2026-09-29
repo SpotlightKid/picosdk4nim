@@ -26,7 +26,8 @@
 
 import hidecmakelinkerpkg/libconf
 
-initLibParams(linkLibraries = ["pico_platform"]).config()
+
+config(initLibParams(linkLibraries = ["pico_platform"]))
 
 {.push header: "pico/platform.h".}
 
@@ -113,6 +114,7 @@ proc getCoreNum*(): cuint {.importc: "get_core_num".}
   ## Get the current core number
   ##
   ## \return The core number the call was made from
-  ## 
+  ##
 
 {.pop.}
+

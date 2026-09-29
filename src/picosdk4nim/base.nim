@@ -26,7 +26,8 @@
 
 import hidecmakelinkerpkg/libconf
 
-initLibParams(linkLibraries = ["hardware_base"]).config()
+
+config(initLibParams(linkLibraries = ["hardware_base"]))
 
 {.push header: "hardware/address_mapped.h".}
 
@@ -88,3 +89,4 @@ proc hwWriteMasked*(`addr`: ptr IoRw32, values: uint32, writeMask: uint32) {.imp
   ## ==============  ======
 
 {.pop.}
+

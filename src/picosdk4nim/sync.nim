@@ -1,6 +1,7 @@
 import hidecmakelinkerpkg/libconf
 
-initLibParams(linkLibraries = ["hardware_sync"]).config()
+
+config(initLibParams(linkLibraries = ["hardware_sync"]))
 
 {.push header: "hardware/sync.h".}
 
@@ -16,3 +17,4 @@ proc saveAndDisableInterrupts*(): uint32 {.importC:"save_and_disable_interrupts"
 proc restoreInterrupts*(status: uint32) {.importC:"restore_interrupts".}
 
 {.pop.}
+

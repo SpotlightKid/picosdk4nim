@@ -1,6 +1,7 @@
 import hidecmakelinkerpkg/libconf
 
-initLibParams(linkLibraries = ["pico_stdlib"]).config()
+
+config(initLibParams(linkLibraries = ["pico_stdlib"]))
 
 {.push header: "pico/stdio.h".}
 proc stdioInitAll*{.importc: "stdio_init_all".}

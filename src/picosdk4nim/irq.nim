@@ -1,6 +1,7 @@
 import hidecmakelinkerpkg/libconf
 
-initLibParams(linkLibraries = ["hardware_irq"]).config()
+
+config(initLibParams(linkLibraries = ["hardware_irq"]))
 
 type
   Irq* = distinct cuint
@@ -48,3 +49,4 @@ proc getExclusiveHandler*(num: Irq): IrqHandler {.importc: "irq_get_exclusive_ha
 proc clear*(num: Irq) {.importC: "irq_clear".}
 
 {.pop.}
+

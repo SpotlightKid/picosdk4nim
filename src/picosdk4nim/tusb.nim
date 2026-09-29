@@ -2,13 +2,8 @@
 
 import hidecmakelinkerpkg/libconf
 
-static:
-  const PicoSDKPath {.strdefine.} = ""
-  const TusbIncludePath = PicoSDKPath & "/lib/tinyusb/src"
-  config(initLibParams(
-    linkLibraries = ["tinyusb_device", "tinyusb_board"],
-    cmakeStmts = [initCMakeCmdWithTarget("target_include_directories(#target PRIVATE " & TusbIncludePath & ")")]
-  ))
+
+config(initLibParams(linkLibraries = ["tinyusb_device", "tinyusb_board"]))
 
 {.push header: "tusb.h".}
 type UsbSpeed* {.pure, importc: "tusb_speed_t".} = enum Full, Low, High

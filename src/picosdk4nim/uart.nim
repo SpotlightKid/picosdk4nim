@@ -1,8 +1,9 @@
 import hidecmakelinkerpkg/libconf
 import bitops
-import ./gpio
+import gpio
 
-initLibParams(linkLibraries = ["hardware_uart"]).config()
+
+config(initLibParams(linkLibraries = ["hardware_uart"]))
 
 {.push header: "hardware/uart.h".}
 
@@ -12,7 +13,6 @@ type
 let
   uart0* {.importc: "uart0".}: ptr UartInst
   uart1* {.importc: "uart1".}: ptr UartInst
-
 
 #/**
 # * \def UART_FUNCSEL_NUM(uart, gpio)
@@ -52,6 +52,7 @@ proc puts*(uart: ptr UartInst; s: cstring) {.importc: "uart_puts".}
 proc getc*(uart: ptr UartInst): cchar {.importc: "uart_getc".}
 
 # Wait for the default UART'S TX fifo to be drained.
-proc defaultTxWaitBlocking*(){.importC: "uart_default_tx_wait_blocking".} 
+proc defaultTxWaitBlocking*(){.importC: "uart_default_tx_wait_blocking".}
 
 {.pop.}
+

@@ -24,13 +24,14 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import sync
+
 import hidecmakelinkerpkg/libconf
-initLibParams(linkLibraries = ["pico_multicore"]).config()
+
+
+config(initLibParams(linkLibraries = ["pico_multicore"]))
 
 {.push header: "pico/multicore.h".}
-
-import ./sync
-export sync
 
 type
   MulticoreEntryPoint* = proc() {.cdecl.}
@@ -267,3 +268,4 @@ proc multicoreLockoutEndTimeoutUs*(timeoutUs: uint64): bool {.importc: "multicor
   ## \return true if the other core successfully exited locked out state within the timeout, false otherwise
 
 {.pop.}
+

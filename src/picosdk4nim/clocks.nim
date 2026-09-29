@@ -26,8 +26,8 @@
 
 import hidecmakelinkerpkg/libconf
 
-initLibParams(linkLibraries = ["pico_stdlib"]).config()
 
+config(initLibParams(linkLibraries = ["pico_stdlib"]))
 
 {.push header: "hardware/clocks.h".}
 
@@ -66,3 +66,4 @@ proc setSysClockKhz*(freqKhz: uint32; required: bool): bool {.importc: "set_sys_
   ## \return true if the clock was configured
 
 {.pop.}
+

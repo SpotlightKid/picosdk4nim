@@ -25,9 +25,11 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import gpio
+
 import hidecmakelinkerpkg/libconf
 
-initLibParams(linkLibraries = @["hardware_adc"]).config()
+
+config(initLibParams(linkLibraries = @["hardware_adc"]))
 
 type AdcInput* {.size: sizeof(cuint).} = enum
   ## Aliases for selectInput() procedure

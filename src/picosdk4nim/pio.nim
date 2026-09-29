@@ -1,8 +1,9 @@
+import gpio
+
 import hidecmakelinkerpkg/libconf
 
-initLibParams(linkLibraries = ["hardware_pio"]).config()
 
-import gpio
+config(initLibParams(linkLibraries = ["hardware_pio"]))
 
 {.push header: "hardware/pio.h".}
 type

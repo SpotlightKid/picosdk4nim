@@ -1,17 +1,12 @@
 # Hardware I2C API
 
-import hidecmakelinkerpkg/libconf
-
 import gpio
 import time
 
-static:
-  const PicoSDKPath {.strdefine.} = ""
-  const I2cIncludePath = PicoSDKPath & "/src/rp2_common/hardware_i2c/include"
-  config(initLibParams(
-    linkLibraries = ["hardware_i2c"],
-    cmakeStmts = [initCMakeCmdWithTarget("target_include_directories(#target PRIVATE " & I2cIncludePath & ")")]
-  ))
+import hidecmakelinkerpkg/libconf
+
+
+config(initLibParams(linkLibraries = ["hardware_i2c"]))
 
 {.push header: "pico.h".}
 let
